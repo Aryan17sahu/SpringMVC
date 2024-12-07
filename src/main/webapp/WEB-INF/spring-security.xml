@@ -1,0 +1,55 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <http auto-config="true">
+        <csrf disabled="true"/>
+        <intercept-url pattern="/test/*" access="hasAnyRole('ROLE_ADMIN','ROLE_USER')"/>
+        <intercept-url pattern="/test1" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/test5" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/test2" access="permitAll()"/>
+        <intercept-url pattern="/test3" access="isAnonymous()"/>
+        <intercept-url pattern="/login1" access="hasRole('ROLE_ADMIN')"/>
+
+
+        <form-login login-page="/signIn" default-target-url="http://localhost:8080/Spring_MVC_Saurav_war_exploded/index.jsp"
+                    authentication-failure-url="/loginError"
+                    authentication-success-handler-ref="employeeSuccessHandler"
+                    login-processing-url="/sec_url"
+                    username-parameter="userName"
+
+                    password-parameter="password"/>
+
+
+
+        <logout logout-url="/signOut" logout-success-url="/logOut1"
+                invalidate-session="true"/>
+
+
+    </http>
+
+
+    <authentication-manager>
+        <authentication-provider>
+            <password-encoder hash="bcrypt"/>
+
+            <jdbc-user-service data-source-ref="driverManagerDataSource"
+
+                               users-by-username-query="select userName,concat(password),1 from admin where userName=?"
+
+                               authorities-by-username-query="select userName,role from admin where userName=?"/>
+        </authentication-provider>
+
+    </authentication-manager>
+
+    <beans:import resource="spring-servlet.xml"/>
+
+    <beans:bean class="com.skytech.handler.EmployeeSuccessHandler" name="employeeSuccessHandler"/>
+
+
+</beans:beans>
